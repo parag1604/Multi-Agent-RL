@@ -1,0 +1,5 @@
+numpy
+torch
+matplotlib
+pettingzoo>=1.25
+mpe2>=1.1
