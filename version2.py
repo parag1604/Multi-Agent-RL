@@ -8,8 +8,9 @@ minus the squared distance from the listener to the goal. The speaker's
 only influence is a message m in R^3 that the listener sees in its
 observation (o_listener = velocity, landmark positions, message).
 
-Each agent still has its own actor and its own local critic, trained with
-PPO as in version0. What is new is how the speaker learns what to say.
+Each agent is an independent PPO learner (DTDE, like version0 but with an
+actor and a local critic instead of a Q-network; PPO pieces in common.py).
+What is new is how the speaker learns what to say.
 Three settings (--channel):
 
   dial  (default) Differentiable inter-agent learning (Foerster et al., 2016).

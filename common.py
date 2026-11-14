@@ -1,13 +1,12 @@
 """
-Pieces shared by every version: networks, a batch of PettingZoo environments,
-GAE and the PPO update.
+Pieces shared by the versions: networks, a batch of PettingZoo environments
+stepped together, and (for version2) the PPO machinery: rollout, GAE and the
+PPO actor and critic updates.
 
 Notation follows the lecture
 (https://parag1604.github.io/notes/Reinforcement-Learning/Multi-Agent-Reinforcement-Learning):
-agent i acts with a decentralized policy pi_i(a_i | o_i) on its own
-observation o_i; all agents receive the same team reward r_t; a critic is
-either local, V_i(o_i), or centralized, V(s), where s is the global state
-(here: the concatenation of all observations).
+agent i acts on its own observation o_i, and all agents receive the same
+team reward r_t.
 """
 import json
 import os
@@ -76,12 +75,11 @@ def rollout(envs, policies, obs_filter=None):
     '''
     obs = envs.reset()
     buf = {a: {'obs': [], 'act': [], 'logp': []} for a in envs.agents}
-    buf['state'], buf['rew'] = [], []
+    buf['rew'] = []
     done = False
     while not done:
         if obs_filter is not None:
             obs = {a: obs_filter(a, o) for a, o in obs.items()}
-        buf['state'].append(np.concatenate([obs[a] for a in envs.agents], -1))
         actions = {}
         with torch.no_grad():
             for a in envs.agents:
@@ -95,7 +93,6 @@ def rollout(envs, policies, obs_filter=None):
         obs, r, done = envs.step(actions)
         buf['rew'].append(r)
     out = {a: {k: torch.stack(v) for k, v in buf[a].items()} for a in envs.agents}
-    out['state'] = torch.as_tensor(np.stack(buf['state']), dtype=torch.float32)
     out['rew'] = torch.as_tensor(np.stack(buf['rew']))
     return out
 

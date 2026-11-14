@@ -2,8 +2,9 @@
 Draw the figures in static/ from the logs in runs/ and print the numbers
 quoted in the README.
 
-Each point of a learning curve is the mean team return of the 64 (or 16) training
-episodes of one PPO iteration (the stochastic policy as it is being trained);
+Each point of a learning curve is the mean team return of the training
+episodes of one iteration (64 episodes of one PPO iteration in version2, 16
+epsilon-greedy episodes in version0/1), i.e. of the policies being trained;
 the thick line is a moving average over 5% of the iterations. "Final" is the mean
 over the last 10% of the iterations.
 
@@ -64,11 +65,11 @@ def curves(runs, labels, title, path, ax=None):
 
 def spread(path):
     fig, axes = plt.subplots(1, 2, figsize=(11, 4), sharey=True)
-    labels = ['v0: independent PPO (DTDE)', 'v1: centralized critic (CTDE)']
-    curves([load('v0_ippo'), load('v1_mappo')], labels,
-           'simple_spread, 64 episodes per iteration', None, axes[0])
-    curves([load('v0_ippo_16envs'), load('v1_mappo_16envs')], labels,
-           'simple_spread, 16 episodes per iteration', None, axes[1])
+    labels = ['v0: independent Q-learning (DTDE)', 'v1: VDN (CTDE)']
+    curves([load('v0_iql_k1'), load('v1_vdn_k1')], labels,
+           'simple_spread, each agent sees 1 agent + 1 landmark', None, axes[0])
+    curves([load('v0_iql_kall'), load('v1_vdn_kall')], labels,
+           'simple_spread, each agent sees everything', None, axes[1])
     fig.tight_layout()
     fig.savefig(path, dpi=150)
 
